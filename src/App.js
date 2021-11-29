@@ -1,6 +1,35 @@
 import "./App.css";
 import SimplexNoise from "simplex-noise";
 
+function ContinuousLine({ grid, spacing }) {
+  let startXIndex = Math.floor(Math.random() * 50);
+  let startYIndex = Math.floor(Math.random() * 30);
+  let startXPos = startXIndex * spacing;
+  let startYPos = startYIndex * spacing;
+  let steps = 500;
+  let points = `${startXPos},${startYPos} `;
+  for (let i = 0; i < steps; i++) {
+    if (!grid[startYIndex] || !grid[startYIndex][startXIndex]) break;
+    let endpointX =
+      startXPos + spacing * Math.cos(grid[startYIndex][startXIndex]);
+    let endpointY =
+      startYPos + spacing * Math.sin(grid[startYIndex][startXIndex]);
+    points += `${endpointX},${endpointY} `;
+    startXIndex += 1;
+    startYIndex += 1;
+    startXPos = endpointX;
+    startYPos = endpointY;
+  }
+  return (
+    <polyline
+      points={points}
+      fill="none"
+      stroke="#ffa69e"
+      strokeWidth={Math.random() * 5}
+    />
+  );
+}
+
 function Line({ x, y, angle, stroke, width }) {
   let length = 5 + Math.random() * 40;
   let endpointX = x + length * Math.cos(angle);
@@ -26,8 +55,9 @@ function App() {
   const otherSimplex = new SimplexNoise(Math.random);
   const otherOtherSimplex = new SimplexNoise(Math.random);
 
-  let width = 100;
-  let height = 100;
+  let width = 50;
+  let height = 30;
+  let spacing = 30;
   let resolution = 1;
 
   let numberOfRows = height / resolution;
@@ -51,7 +81,6 @@ function App() {
     }
   }
 
-  let spacing = 30
 
   return (
     <svg style={{ height: "100vh", width: "100vw", background: "#081c15" }}>
@@ -64,36 +93,39 @@ function App() {
               angle={grid[i][j]}
               stroke="#1b4332"
               width={1}
-              />
-              );
-            });
-          })}
+            />
+          );
+        });
+      })}
       {grid2.map((r, i) => {
         return r.map((c, j) => {
           return (
             <Line
-            x={j * spacing}
-            y={i * spacing}
-            angle={grid2[i][j]}
-            stroke="#2d6a4f"
-            width={1}
-            />
-            );
-          });
-        })}
-      {grid3.map((r, i) => {
-        return r.map((c, j) => {
-          return (
-            <Line
-            x={j * spacing}
-            y={i * spacing}
-            angle={grid3[i][j]}
-            stroke="#40916c"
+              x={j * spacing}
+              y={i * spacing}
+              angle={grid2[i][j]}
+              stroke="#2d6a4f"
               width={1}
             />
           );
         });
       })}
+      {grid3.map((r, i) => {
+        return r.map((c, j) => {
+          return (
+            <Line
+              x={j * spacing}
+              y={i * spacing}
+              angle={grid3[i][j]}
+              stroke="#52b788"
+              width={1}
+            />
+          );
+        });
+      })}
+      {[...Array(50)].map((x) => (
+        <ContinuousLine grid={grid3} spacing={spacing} />
+      ))}
     </svg>
   );
 }
