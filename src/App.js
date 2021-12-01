@@ -4,7 +4,11 @@ import SimplexNoise from "simplex-noise";
 function ContinuousLine({ grid, spacing }) {
   let startXIndex = Math.floor(Math.random() * 250);
   let startYIndex = Math.floor(Math.random() * 150);
-  let colours = ["rgba(207, 225, 185,0.05)", "rgba(233, 245, 219, 0.05)", "rgba(91, 192, 235,0.05)"];
+  let colours = [
+    "rgba(207, 225, 185,0.05)",
+    "rgba(233, 245, 219, 0.05)",
+    "rgba(91, 192, 235,0.05)",
+  ];
 
   let colour = colours[0];
   if (
@@ -49,10 +53,9 @@ function ContinuousLine({ grid, spacing }) {
 }
 
 function Line({ x, y, angle, stroke, width }) {
-  let length = 5 + Math.random();
+  let length = 15 + Math.random();
   let endpointX = x + length * Math.cos(angle);
   let endpointY = y + length * Math.sin(angle);
-  let random = Math.random() * 5;
   return (
     <g>
       <line
@@ -61,7 +64,63 @@ function Line({ x, y, angle, stroke, width }) {
         y1={y}
         y2={endpointY}
         stroke={stroke}
-        strokeWidth={random * width}
+        strokeWidth={width}
+      />
+    </g>
+  );
+}
+
+function Truchet({ x, y, width, angle, spacing, stroke }) {
+  let startX1 = x;
+  let startY1 = y + spacing / 2;
+  let endX1 = x + spacing / 2;
+  let endY1 = y;
+
+  let startX2 = x + spacing / 2;
+  let startY2 = y + spacing;
+  let endX2 = x + spacing;
+  let endY2 = y + spacing / 2;
+
+  if (
+    (Math.cos(angle) > 0 && Math.sin(angle) < 0) ||
+    (Math.cos(angle) < 0 && Math.sin(angle) > 0)
+  ) {
+    startX1 = x;
+    startY1 = y + spacing / 2;
+    endX1 = x + spacing / 2;
+    endY1 = y + spacing;
+
+    startX2 = x + spacing / 2;
+    startY2 = y;
+    endX2 = x + spacing;
+    endY2 = y + spacing / 2;
+  }
+
+  return (
+    <g>
+      <path
+        d={`M ${startX1} ${startY1} C ${x + spacing / 2} ${y + spacing / 2}, ${
+          x + spacing / 2
+        } ${y + spacing / 2}, ${endX1} ${endY1} `}
+        stroke={stroke}
+        fill="none"
+        strokeWidth={width}
+      />
+      <path
+        d={`M ${startX2} ${startY2} C ${x + spacing / 2} ${y + spacing / 2}, ${
+          x + spacing / 2
+        } ${y + spacing / 2}, ${endX2} ${endY2} `}
+        fill="none"
+        stroke={stroke}
+        strokeWidth={width}
+      />
+      <rect
+        x={x}
+        y={y}
+        width={spacing + (10 * Math.random() - 5)}
+        height={spacing + (10 * Math.random() - 5)}
+        stroke="#2A9D8F"
+        fill="none"
       />
     </g>
   );
@@ -91,23 +150,33 @@ function App() {
   }
 
   return (
-    <svg style={{ height: "100vh", width: "100vw", background: "#242038" }}>
+    <svg style={{ height: "100vh", width: "100vw", background: "#264653" }}>
       {grid.map((r, i) => {
         return r.map((c, j) => {
           return (
-            <Line
-              x={j * spacing}
-              y={i * spacing}
-              angle={grid[i][j]}
-              stroke="#6C757D "
-              width={1}
-            />
+            <g>
+              <Line
+                x={j * spacing}
+                y={i * spacing}
+                angle={grid[i][j]}
+                stroke="#E76F51"
+                width={2}
+              />
+              {/* <Truchet
+                x={j * spacing}
+                y={i * spacing}
+                angle={grid[i][j]}
+                stroke="#F4A261"
+                width={5 + (3* Math.random() - 1.5)}
+                spacing={spacing}
+              /> */}
+            </g>
           );
         });
       })}
-      {[...Array(50000)].map((x,i) => (
+      {/* {[...Array(5000)].map((x, i) => (
         <ContinuousLine key={i} grid={grid} spacing={spacing} />
-      ))}
+      ))} */}
     </svg>
   );
 }
