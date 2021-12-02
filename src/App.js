@@ -1,6 +1,80 @@
 import "./App.css";
 import SimplexNoise from "simplex-noise";
 
+function Dots({ grid, spacing }) {
+  let startXIndex = Math.floor(Math.random() * 250);
+  let startYIndex = Math.floor(Math.random() * 150);
+  let colours = [
+    "rgba(207, 225, 185,0.1)",
+    "rgba(233, 245, 219, 0.2)",
+    "rgba(91, 192, 235,0.3)",
+  ];
+
+  let colour = colours[0];
+  if (
+    (startXIndex > 75 + (Math.random() * 50 - 25) &&
+      startXIndex < 175 + (Math.random() * 50 - 25)) ||
+    (startYIndex > 50 + (Math.random() * 50 - 25) &&
+      startYIndex < 100 + (Math.random() * 50 - 25))
+  ) {
+    colour = colours[1];
+  }
+  if (
+    startXIndex > 175 + (Math.random() * 50 - 25) ||
+    startYIndex > 100 + (Math.random() * 50 - 25)
+  ) {
+    colour = colours[2];
+  }
+
+  let startXPos = startXIndex * spacing;
+  let startYPos = startYIndex * spacing;
+  let steps = 10;
+  let points = [[startXPos, startYPos]];
+  for (let i = 0; i < steps; i++) {
+    if (!grid[startYIndex] || !grid[startYIndex][startXIndex]) break;
+    let endpointX =
+      startXPos + spacing * Math.cos(grid[startYIndex][startXIndex]);
+    let endpointY =
+      startYPos + spacing * Math.sin(grid[startYIndex][startXIndex]);
+    points.push([endpointX, endpointY]);
+    startXIndex += 1;
+    startYIndex += 1;
+    startXPos = endpointX;
+    startYPos = endpointY;
+  }
+
+  function getSize() {
+    let seed = Math.random();
+    if (seed > 0.99) {
+      return seed * 10;
+    }
+    if (seed > 0.93 && seed < 0.99) {
+      return seed * 5;
+    }
+    return seed * 2;
+  }
+  
+  return (
+    <g>
+      {points.map((p) => {
+        let size = getSize();
+        let filter = "none";
+        if (size > 9) filter = `url(#f1)`;
+        if (size > 4 && size < 6) filter = `url(#f2)`;
+        return (
+          <circle
+            cx={p[0]}
+            cy={p[1]}
+            r={size}
+            fill={`${colour}`}
+            filter={filter}
+          />
+        );
+      })}
+    </g>
+  );
+}
+
 function ContinuousLine({ grid, spacing }) {
   let startXIndex = Math.floor(Math.random() * 250);
   let startYIndex = Math.floor(Math.random() * 150);
@@ -145,13 +219,19 @@ function App() {
 
   for (let i = 0; i < grid.length; i++) {
     for (let j = 0; j < grid[0].length; j++) {
-      grid[i][j] = Simplex.noise2D(i / 50, j / 50) * Math.PI / 2;
+      grid[i][j] = (Simplex.noise2D(i / 50, j / 50) * Math.PI) / 2;
     }
   }
 
   return (
     <svg style={{ height: "100vh", width: "100vw", background: "#264653" }}>
-      {grid.map((r, i) => {
+      <filter id="f1">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" />
+      </filter>
+      <filter id="f2">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="1" />
+      </filter>
+      {/* {grid.map((r, i) => {
         return r.map((c, j) => {
           return (
             <g>
@@ -162,21 +242,24 @@ function App() {
                 stroke="#E76F51"
                 width={2}
               />
-              {/* <Truchet
+              <Truchet
                 x={j * spacing}
                 y={i * spacing}
                 angle={grid[i][j]}
                 stroke="#F4A261"
-                width={5 + (3* Math.random() - 1.5)}
+                width={5 + (3 * Math.random() - 1.5)}
                 spacing={spacing}
-              /> */}
+              />
             </g>
           );
         });
-      })}
+      })} */}
       {/* {[...Array(5000)].map((x, i) => (
         <ContinuousLine key={i} grid={grid} spacing={spacing} />
       ))} */}
+      {[...Array(1500)].map((x, i) => (
+        <Dots key={i} grid={grid} spacing={spacing} />
+      ))}
     </svg>
   );
 }
