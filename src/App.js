@@ -257,7 +257,7 @@ function App() {
       {/* {[...Array(5000)].map((x, i) => (
         <ContinuousLine key={i} grid={grid} spacing={spacing} />
       ))} */}
-      {[...Array(1500)].map((x, i) => (
+      {[...Array(500)].map((x, i) => (
         <Dots key={i} grid={grid} spacing={spacing} />
       ))}
     </svg>
